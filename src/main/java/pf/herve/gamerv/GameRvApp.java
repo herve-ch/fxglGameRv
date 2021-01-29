@@ -12,11 +12,14 @@ import static com.almasb.fxgl.dsl.FXGL.getGameScene;
 import static com.almasb.fxgl.dsl.FXGL.getWorldProperties;
 import static com.almasb.fxgl.dsl.FXGL.inc;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.input.Input;
 import com.almasb.fxgl.input.UserAction;
+import com.almasb.fxgl.physics.CollisionHandler;
 import java.util.Map;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
@@ -28,6 +31,10 @@ public class GameRvApp extends GameApplication {
 
     private Entity player;
 
+    public enum EntityType {
+        PLAYER, COIN
+    }
+
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setWidth(600);
@@ -38,11 +45,32 @@ public class GameRvApp extends GameApplication {
 
     @Override
     protected void initGame() {
+        FXGL.entityBuilder()
+                .type(EntityType.COIN)
+                .at(500, 200)
+                .viewWithBBox(new Circle(15, 15, 15, Color.YELLOW))
+                .with(new CollidableComponent(true))
+                .buildAndAttach();
+
         player = FXGL.entityBuilder()
+                .type(EntityType.PLAYER)
                 .at(300, 300)
                 //.view(new Rectangle(25, 25, Color.BLUE))
-                .view("sheepou.png")
+                .viewWithBBox("sheepou.png")
+                .with(new CollidableComponent(true))
                 .buildAndAttach();
+    }
+
+    @Override
+    protected void initPhysics() {
+        FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER, EntityType.COIN) {
+
+            // order of types is the same as passed into the constructor
+            @Override
+            protected void onCollisionBegin(Entity player, Entity coin) {
+                coin.removeFromWorld();
+            }
+        });
     }
 
     /* @Override
