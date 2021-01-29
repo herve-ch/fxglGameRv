@@ -49,15 +49,16 @@ public class GameRvApp extends GameApplication {
                 .type(EntityType.COIN)
                 .at(500, 200)
                 .viewWithBBox(new Circle(15, 15, 15, Color.YELLOW))
-                .with(new CollidableComponent(true))
+                .with(new CollidableComponent(true))            
                 .buildAndAttach();
 
         player = FXGL.entityBuilder()
                 .type(EntityType.PLAYER)
                 .at(300, 300)
                 //.view(new Rectangle(25, 25, Color.BLUE))
-                .viewWithBBox("sheepou.png")
+                //.viewWithBBox("sheepou.png")
                 .with(new CollidableComponent(true))
+                .with(new AnimationComponent())
                 .buildAndAttach();
     }
 
@@ -84,7 +85,7 @@ public class GameRvApp extends GameApplication {
             }
         }, KeyCode.D);
     }*/
-    @Override
+ /*@Override
     protected void initInput() {
         FXGL.onKey(KeyCode.D, () -> {
             player.translateX(5); // move right 5 pixels
@@ -105,6 +106,22 @@ public class GameRvApp extends GameApplication {
             player.translateY(5); // move down 5 pixels
             inc("pixelsMoved", +5);
         });
+    }*/
+    @Override
+    protected void initInput() {
+        FXGL.getInput().addAction(new UserAction("Right") {
+            @Override
+            protected void onAction() {
+                player.getComponent(AnimationComponent.class).moveRight();
+            }
+        }, KeyCode.D);
+
+        FXGL.getInput().addAction(new UserAction("Left") {
+            @Override
+            protected void onAction() {
+                player.getComponent(AnimationComponent.class).moveLeft();
+            }
+        }, KeyCode.A);
     }
 
     @Override
