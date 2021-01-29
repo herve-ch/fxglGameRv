@@ -40,7 +40,8 @@ public class GameRvApp extends GameApplication {
     protected void initGame() {
         player = FXGL.entityBuilder()
                 .at(300, 300)
-                .view(new Rectangle(25, 25, Color.BLUE))
+                //.view(new Rectangle(25, 25, Color.BLUE))
+                .view("sheepou.png")
                 .buildAndAttach();
     }
 
@@ -64,12 +65,12 @@ public class GameRvApp extends GameApplication {
 
         FXGL.onKey(KeyCode.Q, () -> {
             player.translateX(-5); // move left 5 pixels
-             inc("pixelsMoved", +5);
+            inc("pixelsMoved", +5);
         });
 
         FXGL.onKey(KeyCode.Z, () -> {
             player.translateY(-5); // move up 5 pixels
-             inc("pixelsMoved", +5);
+            inc("pixelsMoved", +5);
         });
 
         FXGL.onKey(KeyCode.S, () -> {
@@ -87,6 +88,12 @@ public class GameRvApp extends GameApplication {
         textPixels.textProperty().bind(getWorldProperties().intProperty("pixelsMoved").asString());
 
         getGameScene().addUINode(textPixels); // add to the scene graph
+
+        var brickTexture = FXGL.getAssetLoader().loadTexture("grass.png");
+        brickTexture.setTranslateX(50);
+        brickTexture.setTranslateY(450);
+
+        FXGL.getGameScene().addUINode(brickTexture);
     }
 
     @Override
