@@ -7,21 +7,33 @@ package pf.herve.gamerv;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.FXGL;
+import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
+import static com.almasb.fxgl.dsl.FXGL.getAppHeight;
+import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
 import static com.almasb.fxgl.dsl.FXGL.getGameScene;
+import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
+import static com.almasb.fxgl.dsl.FXGL.getInput;
 import static com.almasb.fxgl.dsl.FXGL.getWorldProperties;
 import static com.almasb.fxgl.dsl.FXGL.inc;
+import static com.almasb.fxgl.dsl.FXGL.loopBGM;
+import static com.almasb.fxgl.dsl.FXGL.onCollisionBegin;
+import static com.almasb.fxgl.dsl.FXGL.play;
+import static com.almasb.fxgl.dsl.FXGL.run;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.input.Input;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.physics.CollisionHandler;
+import com.almasb.fxgl.time.TimerAction;
 import java.util.Map;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 /**
  *
@@ -31,119 +43,82 @@ public class GameRvApp extends GameApplication {
 
     private Entity player;
 
-    public enum EntityType {
-        PLAYER, COIN
+    public enum Type {
+        PLAYER, GRASS
     }
 
     @Override
     protected void initSettings(GameSettings settings) {
-        settings.setWidth(600);
-        settings.setHeight(600);
-        settings.setTitle("Basic Game App");
-        settings.setVersion("0.1");
+        // initialize common game / window settings.
+        settings.setTitle("Drop");
+        settings.setVersion("1.0");
+        settings.setWidth(480);
+        settings.setHeight(800);
     }
 
     @Override
     protected void initGame() {
-        FXGL.entityBuilder()
-                .type(EntityType.COIN)
-                .at(500, 200)
-                .viewWithBBox(new Circle(15, 15, 15, Color.YELLOW))
-                .with(new CollidableComponent(true))            
-                .buildAndAttach();
+        spawnPlayer();
+        // creates a timer that runs spawnDroplet() every second
+        run(() -> spawnGrass(), Duration.seconds(1));
 
-        player = FXGL.entityBuilder()
-                .type(EntityType.PLAYER)
-                .at(300, 300)
-                //.view(new Rectangle(25, 25, Color.BLUE))
-                //.viewWithBBox("sheepou.png")
-                .with(new CollidableComponent(true))
-                .with(new AnimationComponent())
-                .buildAndAttach();
+        // loop background music located in /resources/assets/music/
+        //loopBGM("bgm.mp3");
     }
 
     @Override
     protected void initPhysics() {
-        FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER, EntityType.COIN) {
+        onCollisionBegin(Type.PLAYER, Type.GRASS, (player, grass) -> {
 
-            // order of types is the same as passed into the constructor
-            @Override
-            protected void onCollisionBegin(Entity player, Entity coin) {
-                coin.removeFromWorld();
-            }
+            // code in this block is called when there is a collision between Type.BUCKET and Type.DROPLET
+            // remove the collided droplet from the game
+            grass.removeFromWorld();
+
+            // play a sound effect located in /resources/assets/sounds/
+            //play("drop.wav");
         });
     }
 
-    /* @Override
-    protected void initInput() {
-        Input input = FXGL.getInput();
+    private void spawnPlayer() {
+        player = entityBuilder()
+                .type(Type.PLAYER)
+                .at(getAppWidth() / 2, getAppHeight() - 200)
+                .viewWithBBox("sheepou.png")
+                .collidable()
+                .buildAndAttach();
 
-        input.addAction(new UserAction("Move Right") {
-            @Override
-            protected void onAction() {
-                player.translateX(5); // move right 5 pixels
-            }
-        }, KeyCode.D);
-    }*/
- /*@Override
-    protected void initInput() {
-        FXGL.onKey(KeyCode.D, () -> {
-            player.translateX(5); // move right 5 pixels
-            inc("pixelsMoved", +5);
-        });
+        // bind bucket's X value to mouse X
+        player.xProperty().bind(getInput().mouseXWorldProperty());
+    }
 
-        FXGL.onKey(KeyCode.Q, () -> {
-            player.translateX(-5); // move left 5 pixels
-            inc("pixelsMoved", +5);
-        });
-
-        FXGL.onKey(KeyCode.Z, () -> {
-            player.translateY(-5); // move up 5 pixels
-            inc("pixelsMoved", +5);
-        });
-
-        FXGL.onKey(KeyCode.S, () -> {
-            player.translateY(5); // move down 5 pixels
-            inc("pixelsMoved", +5);
-        });
-    }*/
-    @Override
-    protected void initInput() {
-        FXGL.getInput().addAction(new UserAction("Right") {
-            @Override
-            protected void onAction() {
-                player.getComponent(AnimationComponent.class).moveRight();
-            }
-        }, KeyCode.D);
-
-        FXGL.getInput().addAction(new UserAction("Left") {
-            @Override
-            protected void onAction() {
-                player.getComponent(AnimationComponent.class).moveLeft();
-            }
-        }, KeyCode.A);
+    private void spawnGrass() {
+        entityBuilder()
+                .type(Type.GRASS)
+                .at(FXGLMath.random(0, getAppWidth() - 64), 0)
+                .viewWithBBox("grass.png")
+                .collidable()
+                .buildAndAttach();
     }
 
     @Override
     protected void initUI() {
-        Text textPixels = new Text();
-        textPixels.setTranslateX(50); // x = 50
-        textPixels.setTranslateY(100); // y = 100
-
-        textPixels.textProperty().bind(getWorldProperties().intProperty("pixelsMoved").asString());
-
-        getGameScene().addUINode(textPixels); // add to the scene graph
-
-        var brickTexture = FXGL.getAssetLoader().loadTexture("grass.png");
-        brickTexture.setTranslateX(50);
-        brickTexture.setTranslateY(450);
-
-        FXGL.getGameScene().addUINode(brickTexture);
+        Text hpText = new Text();
+        hpText.setTranslateX(50); // x = 50
+        hpText.setTranslateY(100); // y = 100
+        hpText.textProperty().bind(getWorldProperties().intProperty("hpLeft").asString());
+        getGameScene().addUINode(hpText); // add to the scene graph      
     }
 
     @Override
     protected void initGameVars(Map<String, Object> vars) {
-        vars.put("pixelsMoved", 0);
+        vars.put("hpLeft", 0);
+    }
+
+    @Override
+    protected void onUpdate(double tpf) {
+
+        // for each entity of Type.DROPLET translate (move) it down
+        getGameWorld().getEntitiesByType(Type.GRASS).forEach(grass -> grass.translateY(150 * tpf));
     }
 
     /**
