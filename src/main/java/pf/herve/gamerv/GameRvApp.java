@@ -73,6 +73,7 @@ public class GameRvApp extends GameApplication {
             // code in this block is called when there is a collision between Type.BUCKET and Type.DROPLET
             // remove the collided droplet from the game
             grass.removeFromWorld();
+            getWorldProperties().increment("hpLeft", +1);
 
             // play a sound effect located in /resources/assets/sounds/
             //play("drop.wav");
@@ -119,6 +120,14 @@ public class GameRvApp extends GameApplication {
 
         // for each entity of Type.DROPLET translate (move) it down
         getGameWorld().getEntitiesByType(Type.GRASS).forEach(grass -> grass.translateY(150 * tpf));
+        getGameWorld().getEntitiesByType(Type.GRASS).forEach(grass -> {
+            if (grass.getBottomY() > getAppHeight()) {
+                getWorldProperties().increment("hpLeft", -1);
+                            grass.removeFromWorld();
+
+            }
+        });
+
     }
 
     /**
