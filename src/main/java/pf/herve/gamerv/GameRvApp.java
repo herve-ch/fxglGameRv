@@ -12,6 +12,8 @@ import com.almasb.fxgl.dsl.FXGL;
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
 import static com.almasb.fxgl.dsl.FXGL.getAppHeight;
 import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
+import static com.almasb.fxgl.dsl.FXGL.getDialogService;
+import static com.almasb.fxgl.dsl.FXGL.getGameController;
 import static com.almasb.fxgl.dsl.FXGL.getGameScene;
 import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
 import static com.almasb.fxgl.dsl.FXGL.getInput;
@@ -73,7 +75,7 @@ public class GameRvApp extends GameApplication {
             // code in this block is called when there is a collision between Type.BUCKET and Type.DROPLET
             // remove the collided droplet from the game
             grass.removeFromWorld();
-            getWorldProperties().increment("hpLeft", +1);
+           // getWorldProperties().increment("hpLeft", +1);
 
             // play a sound effect located in /resources/assets/sounds/
             //play("drop.wav");
@@ -112,7 +114,7 @@ public class GameRvApp extends GameApplication {
 
     @Override
     protected void initGameVars(Map<String, Object> vars) {
-        vars.put("hpLeft", 0);
+        vars.put("hpLeft", 3);
     }
 
     @Override
@@ -123,11 +125,28 @@ public class GameRvApp extends GameApplication {
         getGameWorld().getEntitiesByType(Type.GRASS).forEach(grass -> {
             if (grass.getBottomY() > getAppHeight()) {
                 getWorldProperties().increment("hpLeft", -1);
-                            grass.removeFromWorld();
+                grass.removeFromWorld();
 
             }
         });
 
+        if (getWorldProperties().getInt("hpLeft") == 0) {
+            /*getGameWorld().getEntities().forEach(entity -> {
+                entity.setVisible(false);
+            });*/
+            gameOver();
+        }
+
+    }
+
+    private void gameOver() {
+        getDialogService().showConfirmationBox("Cheepou a perdu :( \nContinuer?", yes -> {
+            if (yes) {
+                getGameController().startNewGame();
+            } else {
+                getGameController().exit();
+            }
+        });
     }
 
     /**
