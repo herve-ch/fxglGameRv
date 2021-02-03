@@ -1,5 +1,8 @@
 package pf.herve.gamerv;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -53,6 +56,16 @@ public class TestDoubleColon {
 
         T create(String firstName, String lastName);
     }
+    
+    public <T> void doSomething(Supplier<T> function, Consumer<T> onSuccess, Consumer<Exception> onError) {
+        try {
+            T res = function.get();
+            onSuccess.accept(res);
+        } catch (Exception ex) {
+            onError.accept(ex);
+        }
+     }
+
 
     /**
      * @param args the command line arguments
@@ -76,6 +89,12 @@ public class TestDoubleColon {
         
         Name res1 = parser.parse("John Lennon", Name::new);
         System.out.println(res1.getLastName()+" "+res1.getFirstName());
+        Consumer<String> afficher = (param) -> System.out.println(param);
+    
+        doSomething(
+        () -> 42,
+        System.out::println,
+        ex -> System.err.println("Error: " + ex.getMessage()));
 
     }
 
