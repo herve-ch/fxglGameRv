@@ -40,7 +40,7 @@ public class TestDoubleColon {
             return (T) creator.create(firstName, lastName);
         }
     }
-
+    //@FunctionalInterface
     public interface Creator<T> {
 
         T create(String firstName, String lastName);
