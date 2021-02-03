@@ -9,6 +9,7 @@ package pf.herve.gamerv;
  *
  * @author chahd
  */
+//https://blog.ippon.fr/2014/03/18/java-8-interfaces-fonctionnelles/
 public class TestDoubleColon {
 
     public class Name {
@@ -33,6 +34,13 @@ public class TestDoubleColon {
 
     public class NameParser<T> {
 
+        /*public T parse(String name, Creator creator) {
+            String[] tokens = name.split(" ");
+            String firstName = tokens[0];
+            String lastName = tokens[1];
+            return (T) creator.create(firstName, lastName);
+        }*/
+        
         public T parse(String name, Creator creator) {
             String[] tokens = name.split(" ");
             String firstName = tokens[0];
@@ -40,7 +48,7 @@ public class TestDoubleColon {
             return (T) creator.create(firstName, lastName);
         }
     }
-    //@FunctionalInterface
+    @FunctionalInterface
     public interface Creator<T> {
 
         T create(String firstName, String lastName);
