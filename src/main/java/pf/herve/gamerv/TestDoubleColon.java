@@ -96,6 +96,9 @@ public class TestDoubleColon {
         System.out::println,
         ex -> System.err.println("Error: " + ex.getMessage()));
 
+        //In Java 8, Consumer is a functional interface; it takes an argument and returns nothing.
+        Consumer<String> print = x -> System.out.println(x);
+        print.accept("java");   // j
     }
 
 }
