@@ -106,10 +106,16 @@ public class GameRvApp extends GameApplication {
     @Override
     protected void initUI() {
         Text hpText = new Text();
-        hpText.setTranslateX(50); // x = 50
+        hpText.setTranslateX(120); // x = 50
         hpText.setTranslateY(100); // y = 100
+        Text hpLabel = new Text("Nombre de vies :");
+        hpLabel.setTranslateX(20); // x = 50
+        hpLabel.setTranslateY(100); // y = 100
+        
         hpText.textProperty().bind(getWorldProperties().intProperty("hpLeft").asString());
-        getGameScene().addUINode(hpText); // add to the scene graph      
+        getGameScene().addUINode(hpText); // add to the scene graph  
+        getGameScene().addUINode(hpLabel); // add to the scene graph      
+
     }
 
     @Override
