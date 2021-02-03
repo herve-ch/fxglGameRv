@@ -1,5 +1,7 @@
 package pf.herve.gamerv;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -98,7 +100,16 @@ public class TestDoubleColon {
 
         //In Java 8, Consumer is a functional interface; it takes an argument and returns nothing.
         Consumer<String> print = x -> System.out.println(x);
-        print.accept("java");   // j
+        print.accept("java");   // java
+        /*
+        4. Functions
+        The most simple and general case of a lambda is a functional interface with a method that receives one value and returns another. This function of a single argument is represented by the Function interface which is parameterized by the types of its argument and a return value:
+        public interface Function<T, R> { … }*/
+
+        Map<String, Integer> nameMap = new HashMap<>();
+        //nameMap.put("John",2);
+        Integer value = nameMap.computeIfAbsent("John", s -> s.length());
+        System.out.println(value);
     }
 
 }
