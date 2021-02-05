@@ -18,22 +18,12 @@ import static com.almasb.fxgl.dsl.FXGL.getGameScene;
 import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
 import static com.almasb.fxgl.dsl.FXGL.getInput;
 import static com.almasb.fxgl.dsl.FXGL.getWorldProperties;
-import static com.almasb.fxgl.dsl.FXGL.inc;
-import static com.almasb.fxgl.dsl.FXGL.loopBGM;
 import static com.almasb.fxgl.dsl.FXGL.onCollisionBegin;
-import static com.almasb.fxgl.dsl.FXGL.play;
 import static com.almasb.fxgl.dsl.FXGL.run;
 import com.almasb.fxgl.entity.Entity;
-import com.almasb.fxgl.entity.components.CollidableComponent;
-import com.almasb.fxgl.input.Input;
-import com.almasb.fxgl.input.UserAction;
-import com.almasb.fxgl.physics.CollisionHandler;
-import com.almasb.fxgl.time.TimerAction;
+
 import java.util.Map;
-import javafx.scene.input.KeyCode;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -46,7 +36,7 @@ public class GameRvApp extends GameApplication {
     private Entity player;
 
     public enum Type {
-        PLAYER, GRASS
+        PLAYER, GRASS, BOMB
     }
 
     @Override
@@ -63,6 +53,7 @@ public class GameRvApp extends GameApplication {
         spawnPlayer();
         // creates a timer that runs spawnDroplet() every second
         run(() -> spawnGrass(), Duration.seconds(1));
+        run(() -> spawnBomb(), Duration.seconds(1));
 
         // loop background music located in /resources/assets/music/
         //loopBGM("bgm.mp3");
@@ -75,7 +66,18 @@ public class GameRvApp extends GameApplication {
             // code in this block is called when there is a collision between Type.BUCKET and Type.DROPLET
             // remove the collided droplet from the game
             grass.removeFromWorld();
-           // getWorldProperties().increment("hpLeft", +1);
+            // getWorldProperties().increment("hpLeft", +1);
+
+            // play a sound effect located in /resources/assets/sounds/
+            //play("drop.wav");
+        });
+        
+        onCollisionBegin(Type.PLAYER, Type.BOMB, (player, bomb) -> {
+
+            // code in this block is called when there is a collision between Type.BUCKET and Type.DROPLET
+            // remove the collided droplet from the game
+            bomb.removeFromWorld();
+            getWorldProperties().increment("hpLeft", -1);
 
             // play a sound effect located in /resources/assets/sounds/
             //play("drop.wav");
@@ -103,6 +105,20 @@ public class GameRvApp extends GameApplication {
                 .buildAndAttach();
     }
 
+    private void spawnBomb() {
+        int random = FXGLMath.random(0, 3);
+
+        if (random == 3) {
+
+            entityBuilder()
+                    .type(Type.BOMB)
+                    .at(FXGLMath.random(0, getAppWidth() - 64), 0)
+                    .viewWithBBox("bomb.png")
+                    .collidable()
+                    .buildAndAttach();
+        }
+    }
+
     @Override
     protected void initUI() {
         Text hpText = new Text();
@@ -111,7 +127,7 @@ public class GameRvApp extends GameApplication {
         Text hpLabel = new Text("Nombre de vies :");
         hpLabel.setTranslateX(20); // x = 50
         hpLabel.setTranslateY(100); // y = 100
-        
+
         hpText.textProperty().bind(getWorldProperties().intProperty("hpLeft").asString());
         getGameScene().addUINode(hpText); // add to the scene graph  
         getGameScene().addUINode(hpLabel); // add to the scene graph      
@@ -128,11 +144,18 @@ public class GameRvApp extends GameApplication {
 
         // for each entity of Type.DROPLET translate (move) it down
         getGameWorld().getEntitiesByType(Type.GRASS).forEach(grass -> grass.translateY(150 * tpf));
+        getGameWorld().getEntitiesByType(Type.BOMB).forEach(bomb -> bomb.translateY(300 * tpf));
+
         getGameWorld().getEntitiesByType(Type.GRASS).forEach(grass -> {
             if (grass.getBottomY() > getAppHeight()) {
                 getWorldProperties().increment("hpLeft", -1);
                 grass.removeFromWorld();
 
+            }
+        });
+         getGameWorld().getEntitiesByType(Type.BOMB).forEach(bomb -> {
+            if (bomb.getBottomY() > getAppHeight()) {
+                bomb.removeFromWorld();
             }
         });
 
