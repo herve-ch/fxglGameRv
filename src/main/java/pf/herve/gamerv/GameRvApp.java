@@ -23,6 +23,7 @@ import static com.almasb.fxgl.dsl.FXGL.run;
 import com.almasb.fxgl.entity.Entity;
 
 import java.util.Map;
+import javafx.scene.paint.Color;
 
 import javafx.scene.text.Text;
 import javafx.util.Duration;
@@ -50,6 +51,8 @@ public class GameRvApp extends GameApplication {
 
     @Override
     protected void initGame() {
+        getGameScene().setBackgroundColor(Color.LIGHTGREEN);
+
         spawnPlayer();
         // creates a timer that runs spawnDroplet() every second
         run(() -> spawnGrass(), Duration.seconds(1));
